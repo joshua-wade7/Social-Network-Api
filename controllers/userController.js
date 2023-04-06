@@ -58,8 +58,35 @@ module.exports = {
   // /api/users/:userId/friends/:friendsId
 
   //POST route to add a new friend to a user's friend list
-
+  addNewUserFriend(req, res) {
+    console.log("You are adding a friend this users friend list");
+    console.log(req.body);
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.body } },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: "No user found with that Id" })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
   //DELETE route to remove a friend from a user's friend list
+  removeFriend(req, res) {
+    User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { friend: { friendId: req.params.friendId } } },
+      { runValidators: true, new: true }
+    )
+      .then((user) =>
+        !user
+          ? res.status(404).json({ message: "No user found with that Id" })
+          : res.json(user)
+      )
+      .catch((err) => res.status(500).json(err));
+  },
 };
 
 //setup all the routes necessary to hit.  Look at mini project for guidance
