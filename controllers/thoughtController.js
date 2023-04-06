@@ -1,5 +1,5 @@
 //require in the models needed to transact against
-const Thought = require("../models/Thought");
+const { Thought, User } = require("../models/");
 // /api/thoughts
 module.exports = {
   //GET route to get all thoughts
@@ -28,16 +28,8 @@ module.exports = {
           { new: true }
         );
       })
-      .then((user) =>
-        !user
-          ? res
-              .status(404)
-              .json({ message: "thought created, but no users with this id" })
-          : res.json({ message: "thought created" })
-      )
-      .catch((err) => {
-        console.error(err);
-      });
+      .then((thought) => res.json(thought))
+      .catch((err) => res.status(500).json(err));
   },
   //PUT route to update a thought by its _id
   updateThought(req, res) {
