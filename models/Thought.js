@@ -18,6 +18,7 @@ const reactionSchema = new Schema({
     type: Date,
     default: Date.now,
     get: (date) => timesince(date),
+    // get: currentdate => moment(currrentdate).format("MMM DD, YYYY hh:mm a"),
   },
 });
 
@@ -32,6 +33,7 @@ const thoughtSchema = new Schema(
       type: Date,
       default: Date.now,
       get: (date) => timesince(date),
+      // get: currentdate => moment(currrentdate).format("MMM DD, YYYY hh:mm a"),
     },
     username: {
       type: String,
