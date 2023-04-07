@@ -59,11 +59,11 @@ module.exports = {
 
   //POST route to add a new friend to a user's friend list
   addNewUserFriend(req, res) {
-    console.log("You are adding a friend this users friend list");
+    console.log("You are adding a friend to this users friend list");
     console.log(req.body);
     User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $addToSet: { friends: req.params.friendId } },
+      { $addToSet: { friends: req.body } },
       { runValidators: true, new: true }
     )
       .then((user) =>
@@ -75,9 +75,10 @@ module.exports = {
   },
   //DELETE route to remove a friend from a user's friend list
   removeFriend(req, res) {
+    console.log("Friend deleted from your friend list");
     User.findOneAndUpdate(
       { _id: req.params.userId },
-      { $pull: { friends: { friendId: req.params.friendId } } },
+      { $pull: { friends: { friendId: req.params._id } } },
       { runValidators: true, new: true }
     )
       .then((user) =>

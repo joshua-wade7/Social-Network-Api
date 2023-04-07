@@ -1,5 +1,5 @@
 //require in the models needed to transact against
-const { Thought, User } = require("../models/");
+const { Thought, User } = require("../models");
 // /api/thoughts
 module.exports = {
   //GET route to get all thoughts
@@ -13,7 +13,7 @@ module.exports = {
     Thought.findOne({ _id: req.params.thoughtId })
       .then((thought) =>
         !thought
-          ? res.status(404).json({ message: "No thought witht that ID" })
+          ? res.status(404).json({ message: "No thought with that ID" })
           : res.json(thought)
       )
       .catch((err) => res.status(500).json(err));
@@ -24,12 +24,23 @@ module.exports = {
       .then((thought) => {
         return User.findOneAndUpdate(
           { _id: req.body.userId },
-          { $push: { thoughts: thought._id } },
+          { $addToSet: { thoughts: thought._id } },
           { new: true }
         );
       })
-      .then((thought) => res.json(thought))
-      .catch((err) => res.status(500).json(err));
+      .then((user) =>
+        !user
+          ? res.status(404).json({
+              message: "Thought created, but found no user with that ID",
+            })
+          : res.json("Created the thought")
+      )
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+    // .then((user) => res.json(user))
+    // .catch((err) => res.status(500).json(err));
   },
   //PUT route to update a thought by its _id
   updateThought(req, res) {
@@ -59,17 +70,20 @@ module.exports = {
   // /api/thoughts/:thoughtId/reactions
 
   //POST route to create a reaction stored in a single thought's reactions array field
-  createReaction(req, res) {
-    Thought.create(req.body);
+  addReaction(req, res) {
+    console.log("You added a new reaction");
+    console.log(req.body);
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
       { $addToSet: { reactions: req.body } },
       { runValidators: true, new: true }
-    ).then((thought) =>
-      !thought
-        ? res.status(404).json({ message: "No thought found with that Id" })
-        : res.json(thought)
-    );
+    )
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({ message: "No thought found with that Id" })
+          : res.json(thought)
+      )
+      .catch((err) => res.status(500).json(err));
   },
   //DELETE route to pull and remove a reaction by the reactions reactionId value
   removeReaction(req, res) {
@@ -79,8 +93,8 @@ module.exports = {
     // ? res.status(404).json({ message: "No reaction with that Id"})
 
     Thought.findOneAndUpdate(
-      { reactions: req.params.reactionId },
-      { $pull: { reactions: req.params.reactionId } },
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
       { runValidators: true, new: true }
     )
       .then((thought) =>
